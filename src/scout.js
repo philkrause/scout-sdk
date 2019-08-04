@@ -9,9 +9,9 @@ class Scout extends Component {
 
   static async init() {
     await _Scout.configure({
-      clientId: 'af2ef8ea-a458-434e-8c00-26fb8f938eb1',
+      clientId: '**',
       clientSecret:
-        '10dcae04dca819ab4dd0505fa6dc8b923242bd61230c612a1eaf3377987a4a59',
+        '**',
       scope: 'public.read'
     })
 
