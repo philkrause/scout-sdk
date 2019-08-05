@@ -1,55 +1,62 @@
 import React, { Component } from 'react'
+import Stats from './Stats'
 import { Link } from 'react-router-dom'
 const _Scout = window.Scout
 
 class Scout extends Component {
   state = {
-    solo: []
+    solo: [],
+    loading: true
   }
 
-  static async init() {
+  static init = async () => {
     await _Scout.configure({
-      clientId: '**',
+      clientId: 'af2ef8ea-a458-434e-8c00-26fb8f938eb1',
       clientSecret:
-        '**',
+        '10dcae04dca819ab4dd0505fa6dc8b923242bd61230c612a1eaf3377987a4a59',
       scope: 'public.read'
     })
 
-    let titles = await _Scout.titles.list()
-    let fortnite = titles.find(t => t.slug === 'fortnite')
+    const titles = await _Scout.titles.list()
+    const fortnite = titles.find(t => t.slug === 'fortnite')
+    const players = await _Scout.players.search(
+      'Ninja',
+      'epic',
+      'pc',
+      fortnite.id,
+      true,
+      true
+    )
 
-    _Scout.players
+    const playerId = players.results[0].player.playerId
+    console.log('playerid', playerId)
+    const soloData = await _Scout.players.get(
+      fortnite.id,
+      playerId,
+      'p2.br.m0.weekly'
+    )
 
-      .search('Ninja', 'epic', 'pc', fortnite.id, true, true)
-      .then(data => {
-        var playerId = data.results[0].player.playerId
-        const state = {
-          solo: []
-        }
-        _Scout.players
-          .get(fortnite.id, playerId, 'p2.br.m0.weekly')
-          .then(solo => {
-            console.log(solo)
-            console.log(this)
-            this.setState({
-              solo: state.solo
-            })
-
-            // sessionStorage.setItem('stats', JSON.stringify(solo.stats))
-          })
-      })
+    return sessionStorage.setItem('stats', JSON.stringify(soloData))
   }
 
+  componentDidMount() {
+    const data = JSON.parse(sessionStorage.getItem('stats'))
+    this.setState({ solo: data.stats })
+    this.setState({ loading: false })
+  }
   // added render to the class to create a react component
   render() {
     return (
       <>
-        <h1>test</h1>
-        {/* <Link to={{ pathname: '/stats' }}>
-          {solo.map(m => {
-            return <p>{m.value}</p>
-          })}
-        </Link> */}
+        {console.log(this.state.solo)}
+        <h1>Stats</h1>
+        {this.state.loading ? (
+          <h1>Loading...</h1>
+        ) : (
+          this.state.solo.map(m => {
+            return <Stats def={m.metadata.key} totals={m.value} />
+          })
+        )}
       </>
     )
   }
