@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
-import Stats from './Stats'
-import { Link } from 'react-router-dom'
+
 const _Scout = window.Scout
 
 class Scout extends Component {
@@ -9,11 +8,24 @@ class Scout extends Component {
     loading: true
   }
 
+  data = []
+  componentDidMount() {
+    console.log('Component did mount')
+  }
+
+  componentWillMount() {
+    console.log('Component will mount')
+  }
+
+  // componentwillUnmount() {
+  //   console.log('component will unmount')
+  // }
+
   static init = async () => {
+    console.log('Ajax Started')
     await _Scout.configure({
-      clientId: 'af2ef8ea-a458-434e-8c00-26fb8f938eb1',
-      clientSecret:
-        '10dcae04dca819ab4dd0505fa6dc8b923242bd61230c612a1eaf3377987a4a59',
+      clientId: process.env.REACT_APP_CLIENT_ID,
+      clientSecret: process.env.REACT_APP_CLIENT_SECRET,
       scope: 'public.read'
     })
 
@@ -29,34 +41,37 @@ class Scout extends Component {
     )
 
     const playerId = players.results[0].player.playerId
-    console.log('playerid', playerId)
     const soloData = await _Scout.players.get(
       fortnite.id,
       playerId,
       'p2.br.m0.weekly'
     )
 
-    return sessionStorage.setItem('stats', JSON.stringify(soloData))
+    return (
+      console.log('Ajax Finished'),
+      sessionStorage.setItem('stats', JSON.stringify(soloData))
+    )
   }
 
-  componentDidMount() {
-    const data = JSON.parse(sessionStorage.getItem('stats'))
-    this.setState({ solo: data.stats })
-    this.setState({ loading: false })
+  getData = () => {
+    this.data = JSON.parse(sessionStorage.getItem('stats'))
+    console.log('function fired')
+    this.setState({ solo: this.data })
   }
+
+  // this.setState({ loading: false })
+
   // added render to the class to create a react component
   render() {
+    console.log('Render Fired')
+    // const data = JSON.parse(sessionStorage.getItem('stats'))
     return (
       <>
-        {console.log(this.state.solo)}
+        {console.log('Rendering has begun')}
         <h1>Stats</h1>
-        {this.state.loading ? (
-          <h1>Loading...</h1>
-        ) : (
-          this.state.solo.map(m => {
-            return <Stats def={m.metadata.key} totals={m.value} />
-          })
-        )}
+        {/* {this.data.stats.map(m => {
+          return <Stats def={m.metadata.key} totals={m.value} />
+        })} */}
       </>
     )
   }

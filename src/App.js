@@ -3,7 +3,7 @@ import Stats from './Stats'
 import Data from './scout'
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import './App.css'
-// import Scout from './scout'
+require('dotenv').config({ path: '../.env' })
 
 class App extends Component {
   render() {
